@@ -58,7 +58,7 @@ async function loginController(req, res) {
     }
 
     //check if the password is correct
-    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    const isPasswordValid =  await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
         return res.status(401).json({
             message: "Invalid email or password"
