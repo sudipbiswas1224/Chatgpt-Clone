@@ -3,8 +3,14 @@ const { Server } = require("socket.io");
 const cookie = require('cookie');
 const jwt = require('jsonwebtoken');
 const userModel = require("../models/user.model");
-const { generateResponse } = require("../services/ai.service");
+const { generateResponse, generateVector } = require("../services/ai.service");
 const messageModel = require("../models/message.model");
+const { createMemory, queryMemory } = require("../services/vector.service");
+
+
+
+
+
 
 
 
@@ -53,18 +59,45 @@ function initSocketServer(httpServer) {
              */
             console.log('Message from user:', messagePayload.content);
 
-
-
             //saving the user-message in db
-            await messageModel.create({
+            const userMessage = await messageModel.create({
                 chat: messagePayload.chat,
                 user: socket.user._id,
                 role: 'user',
                 content: messagePayload.content
             })
+            console.log("userMessage saved in DB");
 
-            //getting the chat history 
-            const chatHistory = await messageModel.find({ chat: messagePayload.chat });
+            //generating the vector from the message
+            const userMessageVector = await generateVector(messagePayload.content);
+            console.log("userMessageVector generated");
+
+            //getting the relevant contexrt form the pinecone
+            const memory = await queryMemory({
+                queryVector:userMessageVector,
+                limit:3, 
+
+            })
+            console.log("Memory fetched from pinecone:", memory);
+
+            //storing in pincone the userMessageVector
+            await createMemory({
+                messageId: userMessage._id,
+                vector: userMessageVector,
+                metadata: {
+                    chat: messagePayload.chat,
+                    user: socket.user._id, 
+                    text: messagePayload.content,
+                }
+            })
+            console.log('userMessageVector stored in Pinecone');
+
+
+            //getting the chat history (ONLY THE LAST 20 MSG)
+            const chatHistory = (await messageModel.find({ chat: messagePayload.chat }).sort({ createdAt: -1 }).limit(20).lean()).reverse();
+            console.log("problem lies here ");
+
+            //getting the role and parts only from chatHistory
             const chatHistoryWithRoleAndParts = chatHistory.map((item) => {
                 return {
                     role: item.role,
@@ -74,14 +107,32 @@ function initSocketServer(httpServer) {
 
             //getting the response from AI
             const aiResponse = await generateResponse(chatHistoryWithRoleAndParts);
+            console.log("AI response generated");
 
             //saving the ai-response in db
-            await messageModel.create({
+            const responseMessage = await messageModel.create({
                 chat: messagePayload.chat,
                 user: socket.user._id,
                 role: 'model',
                 content: aiResponse
             })
+            console.log("aiResponse saved in DB");
+
+            //getting the ai-response vector
+            const aiResponseVector = await generateVector(aiResponse);
+            console.log("aiResponseVector generated");
+
+            //storing the response vector in pinecone
+            await createMemory({
+                messageId: responseMessage._id,
+                vector: aiResponseVector,
+                metadata: {
+                    chat: messagePayload.chat,
+                    user: socket.user._id,
+                    text: aiResponse                }
+            })
+            console.log('aiResponseVector stored in Pinecone');
+
             socket.emit('ai-response', {
                 content: aiResponse,
                 chat: messagePayload.chat,
