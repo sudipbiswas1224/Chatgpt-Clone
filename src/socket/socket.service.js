@@ -72,13 +72,31 @@ function initSocketServer(httpServer) {
             const userMessageVector = await generateVector(messagePayload.content);
             console.log("userMessageVector generated");
 
-            //getting the relevant contexrt form the pinecone
+            //getting the relevant context form the pinecone
             const memory = await queryMemory({
                 queryVector:userMessageVector,
                 limit:3, 
+                metadata:{
+                    chat:messagePayload.chat,
+                    user:socket.user._id
+                }
 
             })
-            console.log("Memory fetched from pinecone:", memory);
+            console.log("Memory fetched from pinecone");
+            
+            //getting the ltm from the memory
+            const ltm = [
+                {
+                    role:'user',
+                    parts:[{
+                        text: `
+                            Here is some relevent previous conversation you had:
+                            ${memory.map( item => item.metadata.text).join('\n')}
+                        `
+                    }]
+                }
+            ]
+            console.log("LTM", ltm[0]);
 
             //storing in pincone the userMessageVector
             await createMemory({
@@ -93,20 +111,21 @@ function initSocketServer(httpServer) {
             console.log('userMessageVector stored in Pinecone');
 
 
+
             //getting the chat history (ONLY THE LAST 20 MSG)
             const chatHistory = (await messageModel.find({ chat: messagePayload.chat }).sort({ createdAt: -1 }).limit(20).lean()).reverse();
-            console.log("problem lies here ");
 
             //getting the role and parts only from chatHistory
-            const chatHistoryWithRoleAndParts = chatHistory.map((item) => {
+            const stm = chatHistory.map((item) => {
                 return {
                     role: item.role,
                     parts: [{ text: item.content }]
                 }
             })
+            console.log(stm);
 
             //getting the response from AI
-            const aiResponse = await generateResponse(chatHistoryWithRoleAndParts);
+            const aiResponse = await generateResponse(stm);
             console.log("AI response generated");
 
             //saving the ai-response in db

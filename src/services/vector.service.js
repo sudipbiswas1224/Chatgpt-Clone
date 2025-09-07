@@ -22,7 +22,7 @@ async function createMemory({messageId, vector, metadata}){
 
 
 // give the result of the query
-async function queryMemory({queryVector, limit = 2,metadata }){
+async function queryMemory({queryVector, limit,metadata }){
     const data = await chatGptCloneIndex.query({
         vector:queryVector,
         topK:limit, 
