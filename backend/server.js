@@ -1,12 +1,14 @@
 require('dotenv').config();
-const app = require("./src/app");
-const connectDb = require('./src/db/db');
+const app = require('./src/app');
 const { initSocketServer } = require('./src/socket/socket.service');
+const connectDb = require('./src/db/db');
 const httpServer = require("http").createServer(app);
 
 
+
+
 try {
-    connectDb();
+    connectDb()
     initSocketServer(httpServer);
 }catch(err){
     console.log("hi here is the error",err);

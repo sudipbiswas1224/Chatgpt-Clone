@@ -88,7 +88,7 @@ function initSocketServer(httpServer) {
                 messageModel.find({ chat: messagePayload.chat }).sort({ createdAt: -1 }).limit(20).lean()
 
             ])
-            console.log('vector memory and chat history fetched');
+            console.log('vector memory and chat history fetched',memory);
 
             //getting the ltm from the memory
             const ltm = [
