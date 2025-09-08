@@ -15,7 +15,13 @@ const { createMemory, queryMemory } = require("../services/vector.service");
 
 
 function initSocketServer(httpServer) {
-    const io = new Server(httpServer, { /* options */ });
+    const io = new Server(httpServer, {
+        cors: {
+            origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+            methods: ['GET', 'POST'],
+            credentials: true,
+        },
+    });
 
     //check if user is logged in or not (SOCKET IO MIDDLEWARE)
     io.use(async (socket, next) => {
@@ -88,7 +94,7 @@ function initSocketServer(httpServer) {
                 messageModel.find({ chat: messagePayload.chat }).sort({ createdAt: -1 }).limit(20).lean()
 
             ])
-            console.log('vector memory and chat history fetched',memory);
+            console.log('vector memory and chat history fetched', memory);
 
             //getting the ltm from the memory
             const ltm = [
@@ -137,13 +143,13 @@ function initSocketServer(httpServer) {
                         user: socket.user._id,
                         text: messagePayload.content,
                     }
-                }), 
+                }),
                 messageModel.create({
                     chat: messagePayload.chat,
                     user: socket.user._id,
                     role: 'model',
                     content: aiResponse
-                }), 
+                }),
                 generateVector(aiResponse)
 
             ])
