@@ -15,13 +15,7 @@ const { createMemory, queryMemory } = require("../services/vector.service");
 
 
 function initSocketServer(httpServer) {
-    const io = new Server(httpServer, {
-        cors: {
-            origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
-            methods: ['GET', 'POST'],
-            credentials: true,
-        },
-    });
+    const io = new Server(httpServer);
 
     //check if user is logged in or not (SOCKET IO MIDDLEWARE)
     io.use(async (socket, next) => {

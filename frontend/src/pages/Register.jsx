@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const {
@@ -36,7 +37,7 @@ const Register = () => {
         throw new Error(data.message || "Registration failed");
       }
       // Handle success (e.g., show message, redirect)
-      alert("Registration successful!");
+      toast.success("Registration successful!");
       reset();
     } catch (error) {
       // Handle error (e.g., show error message)

@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Navigate, useNavigate } from "react-router-dom";
 import { ToastContainer, toast, Bounce } from "react-toastify";
+import axios from 'axios';
+
+
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -18,17 +23,20 @@ const Login = () => {
     const payload = { email: values.email, password: values.password };
     console.log("Login submitting:", payload);
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+      const response = await axios.post('http://localhost:3000/api/auth/login',{
+        email: values.email,
+        password: values.password
+      },{
+        withCredentials:true
+      })
+      console.log('Response', response);
+      
+      if (response.status != 200) {
+        throw new Error(response.message || "Login failed");
       } else {
         toast.success("Login successful!");
         reset();
+        navigate('/')
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -38,19 +46,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-gray-100">
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-        transition={Bounce}
-      />
       <div className="w-full max-w-md bg-neutral-950/80 backdrop-blur rounded-2xl border border-neutral-800 p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
         <h2 className="text-3xl font-semibold text-center mb-7 tracking-tight">
           Sign In
