@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 // register controller
 async function registerController(req, res) {
     const { email, fullName: { firstName, lastName }, password } = req.body;
-    
+
 
     //check if user already exists or not
     const userAlreadyExists = await userModel.findOne({
@@ -39,8 +39,8 @@ async function registerController(req, res) {
         message: "User registered successfully",
         email: user.email,
         _id: user._id,
-        firstname:firstName,
-        lastname:lastName
+        firstname: firstName,
+        lastname: lastName
     })
 }
 
@@ -58,7 +58,7 @@ async function loginController(req, res) {
     }
 
     //check if the password is correct
-    const isPasswordValid =  await bcryptjs.compare(password, user.password);
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
         return res.status(401).json({
             message: "Invalid email or password"
@@ -77,5 +77,26 @@ async function loginController(req, res) {
     })
 }
 
+async function logoutController(req, res) {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Lax'
+        })
 
-module.exports = { registerController, loginController }
+        res.status(200).json({
+            message: 'Logged out successfully'
+        })
+    } catch (error) {
+        console.log('Error in logout', error);
+        res.status(500).json({
+            message: 'Internal server error'
+        })
+    }
+
+
+}
+
+
+module.exports = { registerController, loginController, logoutController }
