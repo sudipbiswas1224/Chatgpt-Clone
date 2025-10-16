@@ -8,7 +8,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 // Props:
 // - selectedChat: active chat object (or null)
 // - emptyState: React node shown when no chat / empty messages
-export function ChatMessages({ selectedChat, emptyState }) {
+export function ChatMessages({ selectedChat, emptyState, isAiTyping }) {
   const messagesEndRef = useRef(null); // anchor div for scrolling
 
   // Scroll to bottom whenever message count changes
@@ -61,6 +61,27 @@ export function ChatMessages({ selectedChat, emptyState }) {
           )}
         </div>
       ))}
+
+      {isAiTyping && (
+        <div className="flex flex-col items-start max-w-[80%]">
+          <div className="bg-[#1f1f1f] text-[#f3f3f3] rounded-2xl px-5 py-3 text-base shadow-sm">
+            <div className="flex gap-1.5">
+              <span
+                className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                style={{ animationDelay: "0ms" }}
+              ></span>
+              <span
+                className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                style={{ animationDelay: "150ms" }}
+              ></span>
+              <span
+                className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                style={{ animationDelay: "300ms" }}
+              ></span>
+            </div>
+          </div>
+        </div>
+      )}
       <div ref={messagesEndRef} />
     </div>
   );

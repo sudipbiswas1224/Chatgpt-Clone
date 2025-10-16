@@ -1,18 +1,21 @@
 import { Link } from "react-router-dom";
-
-
+import logo from "../assets/logo.png";
 
 const Home = () => {
   return (
     <div className="min-h-screen bg-[#0b0b0b] text-white flex items-center justify-center">
       <div className="text-center space-y-6 p-8">
+        <div className="flex items-center justify-center">
+          <img src={logo} className="h-20 w-20 rounded-full" alt="" />
+        </div>
         <h1 className="text-5xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">
           AurionGPT
         </h1>
+
         <p className="text-xl text-neutral-400">
           Your AI-powered conversation assistant
         </p>
-        
+
         <div className="flex gap-4 justify-center mt-8">
           <Link
             to="/login"

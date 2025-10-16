@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import api from "../services/api";
+import { useNavigate } from "react-router-dom";
+
 
 const Register = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -28,19 +33,24 @@ const Register = () => {
     console.log("Submitting:", payload);
     // TODO: call your API here and handle result
     try {
-      
-      const response = await api.post('/auth/register',{
+      const response = await api.post("/auth/register", 
         payload
-      })
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
-      // Handle success (e.g., show message, redirect)
+      );
+      console.log(response)
+     if(response.status === 201) {
       toast.success("Registration successful!");
+     }
+      // Handle success (e.g., show message, redirect)
       reset();
+      navigate('/login')
     } catch (error) {
       // Handle error (e.g., show error message)
-      alert(error.message);
+      if(error?.response?.status === 400) {
+        toast.error('User already exists Please login')
+      }
+      else {
+        toast.error(error.message)
+      }
     }
   };
 
@@ -113,15 +123,58 @@ const Register = () => {
             <label className="block text-sm mb-1 text-neutral-300">
               Password
             </label>
-            <input
-              type="password"
-              placeholder="Create a password"
-              className="w-full px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-transparent"
-              {...register("password", {
-                required: "Password is required",
-                minLength: { value: 6, message: "At least 6 characters" },
-              })}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a password"
+                className="w-full pr-11 px-4 py-2.5 rounded-lg bg-neutral-900 border border-neutral-800 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-transparent"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: { value: 6, message: "At least 6 characters" },
+                })}
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((s) => !s)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-200 focus:outline-none"
+              >
+                {showPassword ? (
+                  // Eye-off icon
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 15.338 6.4 18 12 18c1.508 0 2.83-.216 3.997-.6m3.023-1.688C21.056 14.77 22.066 13.495 22.066 12 20.774 8.662 17.6 6 12 6c-.73 0-1.418.053-2.066.154M3 3l18 18"
+                    />
+                  </svg>
+                ) : (
+                  // Eye icon
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.364 5 12 5c4.637 0 8.578 2.51 9.964 6.678.07.2.07.444 0 .644C20.578 16.49 16.637 19 12 19c-4.636 0-8.577-2.51-9.964-6.678z"
+                    />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
             {errors.password && (
               <p className="mt-1 text-xs text-red-400">
                 {errors.password.message}

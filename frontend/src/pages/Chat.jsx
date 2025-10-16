@@ -25,6 +25,7 @@ const Chat = () => {
   } = useChats();
 
   const socketRef = useRef(null);
+  const [isAiTyping, setIsAiTyping] = useState(false)
 
   //initialize the socket.io
   useEffect(() => {
@@ -41,6 +42,7 @@ const Chat = () => {
     //listen for ai-resposne event
     socketRef.current.on("ai-response", (data) => {
       console.log("AI Response : ", data);
+      setIsAiTyping(false);
       appendMessage(data.chat, {
         role: "model",
         content: data.content,
@@ -82,12 +84,12 @@ const Chat = () => {
   // Handle logout
   const handleLogout = async () => {
     try {
-        await logoutApi()
-        toast.success('Logged out successfully')
-        navigate('/');
+      await logoutApi();
+      toast.success("Logged out successfully");
+      navigate("/");
     } catch (error) {
-      console.error("Logout error : ", error)
-      toast.error("Logout Failed")
+      console.error("Logout error : ", error);
+      toast.error("Logout Failed");
     }
   };
 
@@ -137,6 +139,7 @@ const Chat = () => {
         chat: selectedChatId,
         content: text,
       });
+      setIsAiTyping(true);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
@@ -150,7 +153,6 @@ const Chat = () => {
           What's on the agenda today?
         </h3>
         <p className="text-sm mt-2">Your conversations will show up here.</p>
-        
       </div>
     </div>
   );
@@ -226,8 +228,8 @@ const Chat = () => {
           </div>
 
           {/* Messages list */}
-          <div className="flex-1 overflow-y-auto bg-black/40">
-            <ChatMessages selectedChat={selectedChat} emptyState={emptyState} />
+          <div className="flex-1 overflow-y-auto bg-black/40 no-scrollbar">
+            <ChatMessages selectedChat={selectedChat} emptyState={emptyState} isAiTyping={isAiTyping} />
           </div>
           {/* Composer */}
           <Composer

@@ -45,7 +45,7 @@ export function Sidebar({
       </div>
 
       {/* Recent chats list */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 no-scrollbar">
         {isLoading ? (
           <div className="text-neutral-500 text-sm p-3 flex items-center gap-2">
             <div className="w-4 h-4 border-2 border-neutral-600 border-t-neutral-400 rounded-full animate-spin" />
