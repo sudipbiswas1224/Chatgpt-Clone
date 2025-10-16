@@ -25,12 +25,12 @@ const Chat = () => {
   } = useChats();
 
   const socketRef = useRef(null);
-  const [isAiTyping, setIsAiTyping] = useState(false)
+  const [isAiTyping, setIsAiTyping] = useState(false);
 
   //initialize the socket.io
   useEffect(() => {
     //initialize socket
-    socketRef.current = io("http://localhost:3000", {
+    socketRef.current = io("https://auriongpt.onrender.com", {
       withCredentials: true,
     });
 
@@ -229,7 +229,11 @@ const Chat = () => {
 
           {/* Messages list */}
           <div className="flex-1 overflow-y-auto bg-black/40 no-scrollbar">
-            <ChatMessages selectedChat={selectedChat} emptyState={emptyState} isAiTyping={isAiTyping} />
+            <ChatMessages
+              selectedChat={selectedChat}
+              emptyState={emptyState}
+              isAiTyping={isAiTyping}
+            />
           </div>
           {/* Composer */}
           <Composer
