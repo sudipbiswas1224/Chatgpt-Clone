@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import api from "../services/api";
 
 const Register = () => {
   const {
@@ -27,12 +28,10 @@ const Register = () => {
     console.log("Submitting:", payload);
     // TODO: call your API here and handle result
     try {
-      const response = await fetch("http://localhost:3000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
+      
+      const response = await api.post('/auth/register',{
+        payload
+      })
       if (!response.ok) {
         throw new Error(data.message || "Registration failed");
       }
@@ -47,7 +46,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-gray-100">
-      <div className="w-full max-w-md bg-neutral-950/80 backdrop-blur rounded-2xl border border-neutral-800 p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
+      <div className="w-full max-w-[90%] md:max-w-md bg-neutral-950/80 backdrop-blur rounded-2xl border border-neutral-800 p-8 shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
         <h2 className="text-3xl font-semibold text-center mb-7 tracking-tight">
           Create Account
         </h2>
