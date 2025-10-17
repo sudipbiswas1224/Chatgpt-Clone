@@ -30,7 +30,7 @@ const Chat = () => {
   //initialize the socket.io
   useEffect(() => {
     //initialize socket
-    socketRef.current = io("http://localhost:3000", {
+    socketRef.current = io("https://auriongpt.onrender.com", {
       withCredentials: true,
     });
 
