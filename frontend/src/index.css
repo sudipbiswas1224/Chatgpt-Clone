@@ -1,12 +1,25 @@
 @import 'tailwindcss';
 
 /* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+
+/* Markdown overflow guards */
+/* Hide scrollbars across the whole app (works for all browsers) */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
-.no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+::-webkit-scrollbar-thumb {
+  background: transparent;
 }
+
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+}
+

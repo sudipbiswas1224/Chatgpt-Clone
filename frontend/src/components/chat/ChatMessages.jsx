@@ -3,58 +3,60 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-// ChatMessages
-// Renders all messages for the active chat + auto-scrolls to bottom on update.
-// Props:
-// - selectedChat: active chat object (or null)
-// - emptyState: React node shown when no chat / empty messages
 export function ChatMessages({ selectedChat, emptyState, isAiTyping }) {
-  const messagesEndRef = useRef(null); // anchor div for scrolling
+  const messagesEndRef = useRef(null);
 
-  // Scroll to bottom whenever message count changes
+  // Auto scroll to bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [selectedChat?.messages?.length]);
 
-  // Show empty state if no chat or no messages yet
   if (!selectedChat) return emptyState;
   if (selectedChat.messages.length === 0) return emptyState;
 
   return (
-    <div className="max-w-4xl mx-auto w-full px-6 py-6 space-y-6 text-[#e6e6e6]">
+    <div className="w-full mx-auto md:max-w-4xl px-3 md:px-6 py-6 space-y-6 text-[#e6e6e6] overflow-x-hidden">
       {selectedChat.messages.map((m) => (
-        <div key={m.id} className="flex flex-col gap-2">
+        <div key={m.id} className="flex flex-col gap-2 w-full min-w-0">
+          {/* AI Message */}
           {m.role === "model" ? (
-            <div className="flex flex-col items-start max-w-[80%]">
-              <div className="bg-[#1f1f1f] text-[#f3f3f3] rounded-2xl px-5 py-3 text-base shadow-sm prose prose-invert prose-sm w-full">
-                <ReactMarkdown
-                  components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || "");
-                      return !inline && match ? (
-                        <SyntaxHighlighter
-                          style={vscDarkPlus}
-                          language={match[1]}
-                          PreTag="div"
-                          {...props}
-                        >
-                          {String(children).replace(/\n$/, "")}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className={className} {...props}>
-                          {children}
-                        </code>
-                      );
-                    },
-                  }}
-                >
-                  {m.content}
-                </ReactMarkdown>
+            <div className="w-full flex justify-start min-w-0">
+              <div className="max-w-[90%] sm:max-w-[85%] md:max-w-[80%]">
+                <div className="rounded-2xl bg-[#1f1f1f] text-[#f3f3f3] p-4 text-base shadow-sm overflow-hidden break-words">
+                  <div className="prose prose-invert prose-sm max-w-none break-words overflow-wrap-anywhere">
+                    <ReactMarkdown
+                      components={{
+                        code({ inline, className, children, ...props }) {
+                          if (!inline) {
+                            return (
+                              <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded-md bg-[#0f0f0f] p-3">
+                                <code className={className} {...props}>
+                                  {children}
+                                </code>
+                              </pre>
+                            );
+                          }
+                          return (
+                            <code
+                              className="break-words whitespace-pre-wrap"
+                              {...props}
+                            >
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
+                      {m.content}
+                    </ReactMarkdown>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (
-            <div className="flex items-end justify-end">
-              <div className="bg-[#2b2b2b] text-[#e6e6e6] rounded-2xl px-5 py-3 text-md max-w-[40%] shadow-sm">
+            /* User Message */
+            <div className="w-full flex justify-end min-w-0">
+              <div className="bg-[#2b2b2b] text-[#e6e6e6] rounded-2xl px-5 py-3 text-md shadow-sm max-w-[90%] sm:max-w-[80%] break-words overflow-wrap-anywhere">
                 {m.content}
               </div>
             </div>
@@ -62,8 +64,9 @@ export function ChatMessages({ selectedChat, emptyState, isAiTyping }) {
         </div>
       ))}
 
+      {/* Typing Indicator */}
       {isAiTyping && (
-        <div className="flex flex-col items-start max-w-[80%]">
+        <div className="flex flex-col items-start w-full max-w-[90%] sm:max-w-[85%] md:max-w-[80%] min-w-0">
           <div className="bg-[#1f1f1f] text-[#f3f3f3] rounded-2xl px-5 py-3 text-base shadow-sm">
             <div className="flex gap-1.5">
               <span
@@ -82,6 +85,7 @@ export function ChatMessages({ selectedChat, emptyState, isAiTyping }) {
           </div>
         </div>
       )}
+
       <div ref={messagesEndRef} />
     </div>
   );
